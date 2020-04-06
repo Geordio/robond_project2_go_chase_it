@@ -26,3 +26,46 @@ sample xacro
       </geometry>
     </collision>
   </link>
+
+
+  link name - "camera"
+  link origin - "[0, 0, 0, 0, 0, 0]"
+  geometry - box with size "[0.05, 0.05, 0.05]"
+
+  mass - "0.1"
+  box_inertia - m="0.1" x="0.05" y="0.05" z="0.05"
+  inertia - ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"
+
+  joint name - "camera_joint"
+
+  joint type - "fixed"
+  joint axis - "[0, 1, 0]"
+  joint origin - "[0.2, 0, 0, 0, 0, 0]"
+  joint parent link - "chassis"
+  joint child link - "camera"
+
+
+
+  <link name='camera'>
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0.05 0.05 0.05" rpy="0 0 0"/>
+      <inertia
+         ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"
+      />
+    </inertial>
+
+    <collision name='camera_collision'>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+          <box size="0.05 0.05 0.05"/>
+      </geometry>
+    </collision>
+
+    <visual name='camera_visual'>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+          <box size="0.05 0.05 0.05"/>
+      </geometry>
+    </visual>
+  </link>
