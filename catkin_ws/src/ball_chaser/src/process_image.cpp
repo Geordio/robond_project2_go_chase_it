@@ -24,47 +24,54 @@ void drive_robot(float lin_x, float ang_z)
   srv.request.angular_z = ang_z;
 
   if (!client.call(srv))
-       ROS_ERROR("Failed to call service");
+  ROS_ERROR("Failed to call service");
 }
 
 
 // determine the required robot command based on the ball location
 std::tuple<float, float> determine_command(int ballLocation) {
 
-  int leftCentreThreshold = 200;
-  int rightCentreThreshold = 600;
+  int leftCentreThreshold = 300;
+  int rightCentreThreshold = 500;
   float lin_x;
   float ang_z;
 
   if ((ballLocation < leftCentreThreshold) && (ballLocation >= 0)) {
     // command left
-  ROS_INFO("go left");
+    ROS_INFO("go left");
     lin_x = MAXLIN;
     ang_z = MAXANG;
   }
   else if ((ballLocation >= leftCentreThreshold) && (ballLocation <= rightCentreThreshold)) {
     // command left
-      ROS_INFO("go straight");
-      lin_x = MAXLIN;
-      ang_z = STRAIGHTANG;
-      // srv
-    }
+    ROS_INFO("go straight");
+    lin_x = MAXLIN;
+    ang_z = STRAIGHTANG;
+    // srv
+  }
   else if  (ballLocation > rightCentreThreshold) {
     // command left
-      ROS_INFO("go right");
-      lin_x = MAXLIN;
-      ang_z = -MAXANG;
+    ROS_INFO("go right");
+    lin_x = MAXLIN;
+    ang_z = -MAXANG;
   }
   else {
     // commaned stop
-      ROS_INFO("stop");
-      lin_x = STRAIGHTANG;
-      ang_z = STOPPEDLIN;
+    ROS_INFO("stop");
+    lin_x = STRAIGHTANG;
+    ang_z = STOPPEDLIN;
   }
   return std::make_tuple (lin_x, ang_z);
 }
 
 // This callback function continuously executes and reads the image data
+// basic process:
+// iterate through the data array of the image
+//    1. find the first white pixel (which will be left of first row of ball)
+//    2. interate through remaining pixels in image row to find the last white pixel on row
+//    3. find the centre of the white pixels in the row.
+//    4. pass the x value of this pixel to method to determine if in left, centre or right
+//    5. call method that can call the service,
 void process_image_callback(const sensor_msgs::Image img)
 {
 
@@ -130,7 +137,7 @@ void process_image_callback(const sensor_msgs::Image img)
   int endOfRow = (leftWhitePixel_y + 1 )* img_width;
 
   // ROS_INFO("find last white pixel: left: %u, endofRow: %u" , leftWhitePixel_index, endOfRow);
-  // pick up where we left off
+  // pick up where we left off, and find the right hand side of the ball
   // find the next non white pixel
   if (leftPixelFound) {
     // ROS_INFO("find last white pixel: left: %u, endofRow: %u" , leftWhitePixel_index, endOfRow);
@@ -154,36 +161,29 @@ void process_image_callback(const sensor_msgs::Image img)
         rightWhitePixel_index = i - 1;
         ROS_INFO("right pixel (white): %d \t: R:%u, G:%u, B:%u", i, R, G, B);
       }
+    } // end of the loop through remaining pixels on rows
 
-      // if no non white pixel was found after the white pixel(s), then use the max image width as the edge of the ball
-      // execute after checking each pixel, if no pixel was found
-      if (!rightPixelFound) {
-        rightWhitePixel_x = i % img_width-1;
-        rightWhitePixel_index = i - 1;
-        ROS_INFO("right side of ball not found, using last pixel, i:%u", rightWhitePixel_x) ;
-      }
-
-      centreBall_x = leftWhitePixel_x + (rightWhitePixel_x - leftWhitePixel_x) / 2;
-
-      ROS_INFO("right pixel: %d \t:, rightWhitePixel: %u", i, rightWhitePixel_x);
-      ROS_INFO("ball centre x: %u", centreBall_x);
-      ROS_INFO("-----------------------------------------------------");
-      ROS_INFO("-----------------------------------------------------");
+    // if no non white pixel was found after the white pixel(s), then use the max image width as the edge of the ball
+    // execute after checking each pixel, if no pixel was found
+    if (!rightPixelFound) {
+      rightWhitePixel_x = rightWhitePixel_index % img_width-1;
+      // rightWhitePixel_index = i - 1;
+      ROS_INFO("right side of ball not found, using last pixel, i:%u", rightWhitePixel_x) ;
     }
 
+    centreBall_x = leftWhitePixel_x + (rightWhitePixel_x - leftWhitePixel_x) / 2;
 
-
-    // find the right midPixel
-
+    ROS_INFO("right pixel: %d \t:, rightWhitePixel: %u", rightWhitePixel_index, rightWhitePixel_x);
+    ROS_INFO("ball centre x: %u", centreBall_x);
+    ROS_INFO("-----------------------------------------------------");
+    ROS_INFO("-----------------------------------------------------");
 
   }
   else {
     // issue stop
-          ROS_INFO("no ball found");
-          // set ball location to -1 (implausible pixel location)
-          centreBall_x = -1;
-
-
+    ROS_INFO("no ball found");
+    // set ball location to -1 (implausible pixel location)
+    centreBall_x = -1;
   }
 
   // TODO: Loop through each pixel in the image and check if there's a bright white one
