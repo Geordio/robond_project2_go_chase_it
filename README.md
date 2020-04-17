@@ -1,6 +1,37 @@
 robond_project2_go_chase_it
 
 
+Purpose
+
+This project is my solution to the Udacity Robotics Software Engineer Project 2, "Go Chase it"
+
+The task was to implement a robot in ROS that is able to follow a white ball.
+The robot can be viewed in Gazebo and RViz. The ball is normally static, but can be moved by the user, and located in positions that will cause the robot to follow it, and take the appropriate action. The direction control is basic, with basic steering control that does have proportional steering. The actions that can be taken are, move forward, turn left whilst moving forward, turn right whilst moving forward, and stop.
+
+Although the robot has both camera and LIDAR, only the camera is used. A basic ball detection and location implementation is used which does not attempt to measure the distance to the ball. The detection uses a simple RGB method, and relies upon the ball being the only white object in the scene.
+
+How to run
+
+This project was developed on a local virtual machine rather than the Udacity online workspace.
+
+The original virtual machine is available at:
+
+To execute:
+
+
+run:
+
+
+
+In a new terminal run:
+
+Once Gazebo has loaded, position the ball into suitable locations by selecting the ball and using the translation tool to move it.
+The Robot should (hopefully) follow the ball.
+If the ball is positioned where the robot cannot see it, the robot will stop.
+
+
+
+
 Useful info
 sample xacro
 
