@@ -22,11 +22,6 @@ bool handle_drive_request(ball_chaser::DriveToTarget::Request& req,
       // Publish drive commands to drive the robot
       motor_command_publisher.publish(motor_command);
 
-    // Return a response message
-    res.msg_feedback = "DriveToTargetRequest response - linear:%1.2f, angular:%1.2f", (float)req.linear_x, (float)req.angular_z;
-    //res.msg_feedback = "robot commands set - lin_x: " + std::to_string(joints_angles[0]) + " , ang_z: " + std::to_string(joints_angles[1]);
-    ROS_INFO_STREAM(res.msg_feedback);
-
     return true;
 }
 

@@ -7,17 +7,18 @@
 ros::ServiceClient client;
 
 // enum Location { Unknown, Left, Middle, Right };
-const float MAXANG = 1;
+const float MAXANG = 0.5;
 const float MAXLIN = 0.5;
 const float STRAIGHTANG = 0.0;
 const float STOPPEDLIN = 0.0;
 
+bool DEBUG = false;
 
 // This function calls the command_robot service to drive the robot in the specified direction
 void drive_robot(float lin_x, float ang_z)
 {
   // TODO: Request a service and pass the velocities to it to drive the robot
-  ROS_INFO_STREAM("Driving the robot");
+  // ROS_INFO_STREAM("Driving the robot");
 
   ball_chaser::DriveToTarget srv;
   srv.request.linear_x = lin_x;
@@ -31,33 +32,41 @@ void drive_robot(float lin_x, float ang_z)
 // determine the required robot command based on the ball location
 std::tuple<float, float> determine_command(int ballLocation) {
 
-  int leftCentreThreshold = 300;
-  int rightCentreThreshold = 500;
+  int leftCentreThreshold = 250;
+  int rightCentreThreshold = 550;
   float lin_x;
   float ang_z;
 
   if ((ballLocation < leftCentreThreshold) && (ballLocation >= 0)) {
     // command left
-    ROS_INFO("go left");
+    if (DEBUG){
+      ROS_INFO("go left");
+    }
     lin_x = MAXLIN;
     ang_z = MAXANG;
   }
   else if ((ballLocation >= leftCentreThreshold) && (ballLocation <= rightCentreThreshold)) {
     // command left
-    ROS_INFO("go straight");
+    if (DEBUG) {
+      ROS_INFO("go straight");
+    }
     lin_x = MAXLIN;
     ang_z = STRAIGHTANG;
     // srv
   }
   else if  (ballLocation > rightCentreThreshold) {
     // command left
-    ROS_INFO("go right");
+    if (DEBUG) {
+      ROS_INFO("go right");
+    }
     lin_x = MAXLIN;
     ang_z = -MAXANG;
   }
   else {
     // commaned stop
-    ROS_INFO("stop");
+    if (DEBUG) {
+      ROS_INFO("stop");
+    }
     lin_x = STRAIGHTANG;
     ang_z = STOPPEDLIN;
   }
@@ -87,8 +96,10 @@ void process_image_callback(const sensor_msgs::Image img)
   uint8_t B = 0;
   // std::string msg = "Encoding: "+ img.encoding;
 
-  ROS_INFO("-----------------------------------------------------");
-  ROS_INFO("image received: %d x %d, data_size: %d", img_width, img_height, img_num_pixels);
+  if (DEBUG){
+    ROS_INFO("-----------------------------------------------------");
+    ROS_INFO("image received: %d x %d, data_size: %d", img_width, img_height, img_num_pixels);
+  }
 
   // not a perfect strategy. Only check for the pixel locations on the first row where they are found
   // EG dont bother checking all the rows that conatin white.
@@ -128,7 +139,9 @@ void process_image_callback(const sensor_msgs::Image img)
       leftWhitePixel_y = i / img_width;
       leftWhitePixel_x = i % img_width;
       leftWhitePixel_index = i;
-      ROS_INFO("found left pixel: %d \t: x:%u, y:%u", i, leftWhitePixel_x, leftWhitePixel_y);
+      if (DEBUG) {
+        ROS_INFO("found left pixel: %d \t: x:%u, y:%u", i, leftWhitePixel_x, leftWhitePixel_y);
+      }
       break;
     }
   }
@@ -151,7 +164,9 @@ void process_image_callback(const sensor_msgs::Image img)
         rightWhitePixel_y = i / img_width;
         rightWhitePixel_x = i % img_height-1;
         rightWhitePixel_index = i - 1;
-        ROS_INFO("right pixel (non white): %d \t: R:%u, G:%u, B:%u", i, R, G, B);
+        if (DEBUG) {
+          ROS_INFO("right pixel (non white): %d \t: R:%u, G:%u, B:%u", i, R, G, B);
+        }
         break;
       }
       else {
@@ -159,7 +174,9 @@ void process_image_callback(const sensor_msgs::Image img)
         rightWhitePixel_y = i / img_width;
         rightWhitePixel_x = i % img_height-1;
         rightWhitePixel_index = i - 1;
-        ROS_INFO("right pixel (white): %d \t: R:%u, G:%u, B:%u", i, R, G, B);
+        if (DEBUG) {
+          ROS_INFO("right pixel (white): %d \t: R:%u, G:%u, B:%u", i, R, G, B);
+        }
       }
     } // end of the loop through remaining pixels on rows
 
@@ -168,20 +185,24 @@ void process_image_callback(const sensor_msgs::Image img)
     if (!rightPixelFound) {
       rightWhitePixel_x = rightWhitePixel_index % img_width-1;
       // rightWhitePixel_index = i - 1;
-      ROS_INFO("right side of ball not found, using last pixel, i:%u", rightWhitePixel_x) ;
+      if (DEBUG) {
+        ROS_INFO("right side of ball not found, using last pixel, i:%u", rightWhitePixel_x) ;
+      }
     }
 
     centreBall_x = leftWhitePixel_x + (rightWhitePixel_x - leftWhitePixel_x) / 2;
-
-    ROS_INFO("right pixel: %d \t:, rightWhitePixel: %u", rightWhitePixel_index, rightWhitePixel_x);
-    ROS_INFO("ball centre x: %u", centreBall_x);
-    ROS_INFO("-----------------------------------------------------");
-    ROS_INFO("-----------------------------------------------------");
-
+    if (DEBUG) {
+      ROS_INFO("right pixel: %d \t:, rightWhitePixel: %u", rightWhitePixel_index, rightWhitePixel_x);
+      ROS_INFO("ball centre x: %u", centreBall_x);
+      ROS_INFO("-----------------------------------------------------");
+      ROS_INFO("-----------------------------------------------------");
+    }
   }
   else {
     // issue stop
-    ROS_INFO("no ball found");
+    if (DEBUG) {
+      ROS_INFO("no ball found");
+    }
     // set ball location to -1 (implausible pixel location)
     centreBall_x = -1;
   }
@@ -194,14 +215,16 @@ void process_image_callback(const sensor_msgs::Image img)
   float lin_x;
   float ang_z;
   std::tie(lin_x, ang_z) = determine_command(centreBall_x);
-  ROS_INFO("command from tuple: x:%1.2f, z: %1.2f", lin_x, ang_z);
+  if (DEBUG) {
+    ROS_INFO("linear_x:%1.2f, angular_z: %1.2f", lin_x, ang_z);
+  }
   drive_robot(lin_x, ang_z);
 }
 
 int main(int argc, char** argv)
 {
-  ROS_INFO("ready to process images...");
-
+  ROS_INFO("Ready to process images...");
+  
   // Initialize the process_image node and create a handle to it
   ros::init(argc, argv, "process_image");
   ros::NodeHandle n;
