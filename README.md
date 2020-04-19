@@ -1,7 +1,6 @@
 # Udacity Robitics Software Engineer - Project 2 - Go Chase it
 
 
-
 ## Purpose
 
 This project is my solution to the Udacity Robotics Software Engineer Project 2, "Go Chase it"
@@ -21,9 +20,9 @@ To execute:
 
 Launch gazebo, Rviz and the model
 In a terminal from the projects catkin_ws directory, run:
+
 >source devel/setup.bash
 roslaunch my_robot world.launch
-
 
 
 Run the image processing  and robot driver controller software
