@@ -21,13 +21,14 @@ To execute:
 Launch gazebo, Rviz and the model
 In a terminal from the projects catkin_ws directory, run:
 
->source devel/setup.bash
+>source devel/setup.bash\
 roslaunch my_robot world.launch
 
 
 Run the image processing  and robot driver controller software
 In a new terminal, from the projects catkin_ws directory, run:
->source devel/setup.bash
+
+>source devel/setup.bash\
 roslaunch ball_chaser ball_chaser.launch
 
 
