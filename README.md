@@ -40,6 +40,6 @@ If the ball is positioned where the robot cannot see it, the robot will stop.
 ## Robot
 Note that the robot appears as all white in gazebo, but is coloured correctly in Rviz
 
-The robot was changed from the one in the lessons. I experimented with many designs,
+The robot was changed from the one in the lessons. I experimented with many designs,with the wheels at the front and rear but had issues with manoeuvrability, so reverted to centrally positioned wheels. The wheel size, castor size and locations, camera and lidar positions were all changed. The chassis was modelled to resemble a rudimentary tank with the camera positioned on the end of the "barrel".
 
 The robot has a tendancy to oscilate when following a ball that has been moved off centre. This is due to the fairly basic controller thats implemented. It could be improved by estimating the distance to the ball, and the error from the robots current trajectory and implementing a PID. This exceeds the project rubric so I did not implement this.
