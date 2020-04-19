@@ -1,7 +1,8 @@
-robond_project2_go_chase_it
+# Udacity Robitics Software Engineer - Project 2 - Go Chase it
 
 
-Purpose
+
+## Purpose
 
 This project is my solution to the Udacity Robotics Software Engineer Project 2, "Go Chase it"
 
@@ -10,93 +11,35 @@ The robot can be viewed in Gazebo and RViz. The ball is normally static, but can
 
 Although the robot has both camera and LIDAR, only the camera is used. A basic ball detection and location implementation is used which does not attempt to measure the distance to the ball. The detection uses a simple RGB method, and relies upon the ball being the only white object in the scene.
 
-How to run
+### Background
 
 This project was developed on a local virtual machine rather than the Udacity online workspace.
+The original virtual machine is available from the course website.
 
-The original virtual machine is available at:
-
+### To run
 To execute:
 
+Launch gazebo, Rviz and the model
+In a terminal from the projects catkin_ws directory, run:
+>source devel/setup.bash
+roslaunch my_robot world.launch
 
-run:
 
 
+Run the image processing  and robot driver controller software
+In a new terminal, from the projects catkin_ws directory, run:
+>source devel/setup.bash
+roslaunch ball_chaser ball_chaser.launch
 
-In a new terminal run:
+
 
 Once Gazebo has loaded, position the ball into suitable locations by selecting the ball and using the translation tool to move it.
 The Robot should (hopefully) follow the ball.
 If the ball is positioned where the robot cannot see it, the robot will stop.
 
+## Robot
+Note that the robot appears as all white in gazebo, but is coloured correctly in Rviz
 
+The robot was changed from the one in the lessons. I experimented with many designs,
 
-
-Useful info
-sample xacro
-
-<link name="link_1">
-    <inertial>
-      <origin xyz="0 0 0.4" rpy="0 0 0"/>
-      <mass value="${mass1}"/>
-      <inertia ixx="30" ixy="0" ixz="0" iyy="50" iyz="0" izz="50"/>
-    </inertial>
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://kuka_arm/meshes/kr210l150/visual/link_1.dae"/>
-      </geometry>
-      <material name="">
-        <color rgba="0.75294 0.75294 0.75294 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <mesh filename="package://kuka_arm/meshes/kr210l150/collision/link_1.stl"/>
-      </geometry>
-    </collision>
-  </link>
-
-
-  link name - "camera"
-  link origin - "[0, 0, 0, 0, 0, 0]"
-  geometry - box with size "[0.05, 0.05, 0.05]"
-
-  mass - "0.1"
-  box_inertia - m="0.1" x="0.05" y="0.05" z="0.05"
-  inertia - ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"
-
-  joint name - "camera_joint"
-
-  joint type - "fixed"
-  joint axis - "[0, 1, 0]"
-  joint origin - "[0.2, 0, 0, 0, 0, 0]"
-  joint parent link - "chassis"
-  joint child link - "camera"
-
-
-
-  <link name='camera'>
-    <inertial>
-      <mass value="0.1"/>
-      <origin xyz="0.05 0.05 0.05" rpy="0 0 0"/>
-      <inertia
-         ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"
-      />
-    </inertial>
-
-    <collision name='camera_collision'>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-          <box size="0.05 0.05 0.05"/>
-      </geometry>
-    </collision>
-
-    <visual name='camera_visual'>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-          <box size="0.05 0.05 0.05"/>
-      </geometry>
-    </visual>
-  </link>
+The robot has a tendancy to oscilate when following a ball that has been moved off centre. This is due to the fairly basic controller thats implemented. It could be improved by estimating the distance to the ball, and the error from the robots current trajectory and implementing a PID. This exceeds the project rubric so I did not implement this.
